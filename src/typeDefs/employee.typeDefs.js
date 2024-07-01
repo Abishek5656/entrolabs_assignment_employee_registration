@@ -96,9 +96,6 @@ type CreateEmployeeResponse {
 }
 
 type GetALLEmployeesResponse {
-    code: Int
-    success: Boolean
-    message: String
     records_per_page: Int
     pages: Int
     currentPage: Int

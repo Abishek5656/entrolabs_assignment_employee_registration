@@ -274,6 +274,25 @@ const employeeResolver = {
         // Pagination calculations
         const records_per_page = 4;
         const pages = Math.ceil(Number_Of_Record / records_per_page);
+
+        if( currentPage === 0) {
+
+          const getAllRecordsQuery  = `SELECT * FROM employee`;
+          const getAllRecords = await queryAsync(getAllRecordsQuery);
+
+          const employees = getAllRecords.map(emp => ({
+            firstName: emp.firstName,
+            lastName: emp.lastName,
+            email: emp.email,
+            phoneNumber: emp.phoneNumber,
+            skills: JSON.parse(emp.skills) 
+          }));
+
+          return { employees }
+    
+        }
+
+
         const OFFSET = (currentPage - 1) * records_per_page;
 
         // Fetch the employees for the current page
@@ -289,9 +308,6 @@ const employeeResolver = {
         }));
 
         return {
-          code: 200,
-          success: true,
-          message: "Retrieving All Employees Details",
           employees,
           records_per_page,
           pages,
@@ -301,9 +317,6 @@ const employeeResolver = {
       } catch (err) {
         console.log(err);
         return {
-          code: err.extensions?.response?.status || 500,
-          success: false,
-          message: err.message || "Internal Server Error",
           records_per_page: null,
           pages: null,
           currentPage: null,
