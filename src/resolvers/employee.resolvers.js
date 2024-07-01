@@ -265,7 +265,6 @@ const employeeResolver = {
   Query: {
     employees: async (_, args, context) => {
       const { currentPage } = args;
-
       try {
         const countQuery = `SELECT COUNT(*) as totalRecords FROM employee`;
         const countResult = await queryAsync(countQuery);
@@ -291,8 +290,6 @@ const employeeResolver = {
           return { employees }
     
         }
-
-
         const OFFSET = (currentPage - 1) * records_per_page;
 
         // Fetch the employees for the current page

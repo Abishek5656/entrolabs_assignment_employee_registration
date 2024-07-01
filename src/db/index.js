@@ -15,8 +15,6 @@ const connectDB = async () => {
                 console.error('Error connecting to MySQL:', err.stack);
                 return;
             }
-            console.log('Connected to MySQL as id', connection.threadId);
-
             // Create tables if they don't exist
             const createTables = `
                 CREATE TABLE IF NOT EXISTS Employee (
@@ -49,8 +47,6 @@ const connectDB = async () => {
             connection.query(createTables, (error, results, fields) => {
                 if (error) {
                     console.error('Error creating tables:', error);
-                } else {
-                    console.log('Tables created or already exist');
                 }
             });
         });
