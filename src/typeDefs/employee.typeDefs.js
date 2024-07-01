@@ -1,12 +1,12 @@
 const employeeTypeDef = `#graphql 
 
 type Employee {
-    id: ID!
+    id: ID
     firstName: String
     lastName: String
     email: String
     phoneNumber: String
-    skills: [String!]
+    skills: [String]
     createdAt: String
     updatedAt: String
 }
@@ -36,22 +36,20 @@ type EmergencyContact {
 }
 
 input CreateEmployeeInput {
-    firstName: String!
-    lastName: String!
-    email: String!
-    phoneNumber: String!
-    skills: [String!]!
-    address: AddressInput!
-    emergencyContact: EmergencyContactInput!
-    employeeJobDetails: EmployeeJobDetailsInput!
+    firstName: String
+    lastName: String
+    email: String
+    phoneNumber: String
+    skills: [String]
+    address: AddressInput
+    emergencyContact: EmergencyContactInput
+    employeeJobDetails: EmployeeJobDetailsInput
 }
  
 input UpdateEmployeeDetailsInput {
     emp_id: String!
     managerID: Int
 }
-
-
 
 input LoginEmployeeDetailsInput {
     emp_Id: String!
@@ -64,7 +62,7 @@ input EmployeeInput {
     lastName: String
     email: String
     phoneNumber: String
-    skills: [String!]
+    skills: [String]
 }
 
 input AddressInput {
@@ -98,47 +96,49 @@ type CreateEmployeeResponse {
 }
 
 type GetALLEmployeesResponse {
-    code: Int!
-    success: Boolean!
-    message: String!
-    employees: [Employee!]!
+    code: Int
+    success: Boolean
+    message: String
+    records_per_page: Int
+    pages: Int
+    currentPage: Int
+    totalRecords: Int
+ employees: [Employee]
 }
 
 type GetEmployeeByIdResponse {
-  code: Int!
-  success: Boolean!
-  message: String!
+  code: Int
+  success: Boolean
+  message: String
 }
 
 type UpdateEmployeeDetailsResponse {
-  code: Int!
-  success: Boolean!
-  message: String!
+  code: Int
+  success: Boolean
+  message: String
 }
 
 type LoginEmployeeResponse {
-  code: Int!
-  success: Boolean!
-  message: String!
+  code: Int
+  success: Boolean
+  message: String
 }
 
 type DeleteEmployeeDetailsResponse {
-  code: Int!
-  success: Boolean!
-  message: String!
+  code: Int
+  success: Boolean
+  message: String
 }
 
 type Query {
-    employees: GetALLEmployeesResponse!
+    employees(currentPage: Int!): GetALLEmployeesResponse!
     employee(emp_Id: String!): GetEmployeeByIdResponse!
 }
 
 type Mutation {
     createEmployee(input: CreateEmployeeInput): CreateEmployeeResponse!
     loginEmployee(input: LoginEmployeeDetailsInput): LoginEmployeeResponse!
-   
-  updateEmployeeDetails(input: UpdateEmployeeDetailsInput!): UpdateEmployeeDetailsResponse!
-
+   updateEmployeeDetails(input: UpdateEmployeeDetailsInput!): UpdateEmployeeDetailsResponse!
     deleteEmployeeDetails(emp_Id: String!): DeleteEmployeeDetailsResponse!
 }
 `;

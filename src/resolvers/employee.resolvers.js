@@ -176,40 +176,29 @@ const employeeResolver = {
       }
     },
     updateEmployeeDetails: async (_, args, context) => {
-
       const { emp_id, managerID } = args.input;
 
+      try {
+        console.log("inside the updateEmployeeDetails");
+        console.log("emp_id");
+        console.log(emp_id);
+        console.log("manager");
+        console.log(managerID);
 
-    try {
+        if (!emp_id) {
+          return {
+            code: 400,
+            success: false,
+            message: "Employee ID is required",
+          };
+        }
 
-
-      console.log("inside the updateEmployeeDetails");
-      console.log("emp_id")
-      console.log(emp_id);
-      console.log("manager");
-      console.log(managerID)
-      
-      if (!emp_id) {
-        return {
-          code: 400,
-          success: false,
-          message: "Employee ID is required",
-        };
-      }
-
-
-
-     
-      const updateQuery = `UPDATE employee SET  managerID = ?,  updatedAt = NOW() 
+        const updateQuery = `UPDATE employee SET  managerID = ?,  updatedAt = NOW() 
       WHERE Emp_id = ?`;
 
-      const updateValues = [
-        managerID,
-        emp_id,  
-      ];
+        const updateValues = [managerID, emp_id];
 
-
-      const updateEmployee = await queryAsync(updateQuery, updateValues);
+        const updateEmployee = await queryAsync(updateQuery, updateValues);
 
         if (updateEmployee.affectedRows === 0) {
           return {
@@ -224,21 +213,15 @@ const employeeResolver = {
           success: true,
           message: "Employee details updated successfully",
         };
-
-
-    } catch (err) {
-       return {
+      } catch (err) {
+        return {
           code: err.extensions?.response?.status || 500,
           success: false,
           message: err.message || "Internal Server Error",
         };
-    }
-
-
+      }
     },
     deleteEmployeeDetails: async (_, args, context) => {
-
-
       const { emp_Id } = args;
 
       try {
@@ -280,11 +263,57 @@ const employeeResolver = {
     },
   },
   Query: {
+    employees: async (_, args, context) => {
+      const { currentPage } = args;
 
-    employee: async(_, args, context) => {
-      
       try {
-        
+        const countQuery = `SELECT COUNT(*) as totalRecords FROM employee`;
+        const countResult = await queryAsync(countQuery);
+        const Number_Of_Record = countResult[0].totalRecords;
+
+        // Pagination calculations
+        const records_per_page = 4;
+        const pages = Math.ceil(Number_Of_Record / records_per_page);
+        const OFFSET = (currentPage - 1) * records_per_page;
+
+        // Fetch the employees for the current page
+        const getEmployeesQuery = `SELECT * FROM employee LIMIT ? OFFSET ?`;
+        const getEmployees = await queryAsync(getEmployeesQuery, [records_per_page, OFFSET]);
+
+        const employees = getEmployees.map(emp => ({
+          firstName: emp.firstName,
+          lastName: emp.lastName,
+          email: emp.email,
+          phoneNumber: emp.phoneNumber,
+          skills: JSON.parse(emp.skills) 
+        }));
+
+        return {
+          code: 200,
+          success: true,
+          message: "Retrieving All Employees Details",
+          employees,
+          records_per_page,
+          pages,
+          currentPage,
+          totalRecords: Number_Of_Record,
+        };
+      } catch (err) {
+        console.log(err);
+        return {
+          code: err.extensions?.response?.status || 500,
+          success: false,
+          message: err.message || "Internal Server Error",
+          records_per_page: null,
+          pages: null,
+          currentPage: null,
+          totalRecords: null,
+          employees: null
+        };
+      }
+    },
+    employee: async (_, args, context) => {
+      try {
         const { emp_Id } = args;
 
         if (!emp_Id) {
@@ -312,7 +341,6 @@ const employeeResolver = {
           success: true,
           message: "Employee retrieved successfully",
         };
-
       } catch (err) {
         return {
           code: err.extensions?.response?.status || 500,
@@ -320,10 +348,7 @@ const employeeResolver = {
           message: err.message || "Internal Server Error",
         };
       }
-
-
-
-    }
+    },
   },
 };
 
