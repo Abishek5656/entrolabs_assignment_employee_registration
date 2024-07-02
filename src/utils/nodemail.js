@@ -35,7 +35,7 @@ export const sendMailer = (usermail, username) => {
     from: 'suryaabishekvarmapenemtsa@gmail.com',
     to: usermail,
     subject: `Welcome ${username}`,
-    text: 'Welcome to Our Organization',
+    text: `Welcome to Our Organization ${username} `,
   };
 
   transporter.sendMail(mailOptions, (err, data) => {
