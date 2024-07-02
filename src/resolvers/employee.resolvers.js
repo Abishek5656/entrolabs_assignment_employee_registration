@@ -1,5 +1,6 @@
 import queryAsync from "../utils/queryAsync.js";
 import { v4 as uuidv4 } from "uuid";
+import { sendMailer } from "../utils/nodemail.js";
 
 const employeeResolver = {
   Mutation: {
@@ -73,10 +74,11 @@ const employeeResolver = {
   createdAt,
   updatedAt
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+`;
 
-
-
-        `;
+        if (insertQuery) {
+          await sendMailer(email,firstName);
+        }
 
         // Extract address details
         const address_street = address?.street || null;
@@ -122,8 +124,8 @@ const employeeResolver = {
           emergencyContact_phoneNumber,
         ]);
 
-        console.log("insertedEmployee Data");
-        console.log(insertedEmployee);
+        // console.log("insertedEmployee Data");
+        // console.log(insertedEmployee);
 
         return {
           code: 201,
@@ -274,34 +276,35 @@ const employeeResolver = {
         const records_per_page = 4;
         const pages = Math.ceil(Number_Of_Record / records_per_page);
 
-        if( currentPage === 0) {
-
-          const getAllRecordsQuery  = `SELECT * FROM employee`;
+        if (currentPage === 0) {
+          const getAllRecordsQuery = `SELECT * FROM employee`;
           const getAllRecords = await queryAsync(getAllRecordsQuery);
 
-          const employees = getAllRecords.map(emp => ({
+          const employees = getAllRecords.map((emp) => ({
             firstName: emp.firstName,
             lastName: emp.lastName,
             email: emp.email,
             phoneNumber: emp.phoneNumber,
-            skills: JSON.parse(emp.skills) 
+            skills: JSON.parse(emp.skills),
           }));
 
-          return { employees }
-    
+          return { employees };
         }
         const OFFSET = (currentPage - 1) * records_per_page;
 
         // Fetch the employees for the current page
         const getEmployeesQuery = `SELECT * FROM employee LIMIT ? OFFSET ?`;
-        const getEmployees = await queryAsync(getEmployeesQuery, [records_per_page, OFFSET]);
+        const getEmployees = await queryAsync(getEmployeesQuery, [
+          records_per_page,
+          OFFSET,
+        ]);
 
-        const employees = getEmployees.map(emp => ({
+        const employees = getEmployees.map((emp) => ({
           firstName: emp.firstName,
           lastName: emp.lastName,
           email: emp.email,
           phoneNumber: emp.phoneNumber,
-          skills: JSON.parse(emp.skills) 
+          skills: JSON.parse(emp.skills),
         }));
 
         return {
@@ -318,7 +321,7 @@ const employeeResolver = {
           pages: null,
           currentPage: null,
           totalRecords: null,
-          employees: null
+          employees: null,
         };
       }
     },

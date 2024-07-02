@@ -1,7 +1,10 @@
 import express from "express";
 import http from "http";
 import cors from "cors";
+import dotenv from "dotenv";
 
+
+dotenv.config('./.env');
 
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
