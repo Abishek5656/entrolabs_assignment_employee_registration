@@ -34,9 +34,10 @@ export const sendMailer = (usermail, username) => {
   const mailOptions = {
     from: 'suryaabishekvarmapenemtsa@gmail.com',
     to: usermail,
-    subject: `Welcome ${username}`,
-    text: `Welcome to Our Organization ${username} `,
+    subject: `Welcome to Our Organization, ${username}!`,
+    text: `Dear ${username},\n\nWelcome to Entro Labs! We are thrilled to have you as part of our team. \n\nAt Entro Labs, we believe in fostering a supportive and innovative environment where every member can thrive and contribute to our shared goals. We are excited for you to bring your unique skills and experiences to the table.\n\nIf you have any questions or need assistance as you get started, please don’t hesitate to reach out. We’re here to help you succeed and make your experience with us enjoyable and fulfilling.\n\nOnce again, welcome aboard! We look forward to working with you.\n\nBest Regards,\nThe Entro Labs Team`,
   };
+  
 
   transporter.sendMail(mailOptions, (err, data) => {
     if (err) {
