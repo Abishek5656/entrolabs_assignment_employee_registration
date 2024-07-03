@@ -150,16 +150,6 @@ const employeeResolver = {
 
         const searchEmployee = await queryAsync(searchQuery, [email]);
 
-        // console.log("searchEmployee");
-        // console.log(searchEmployee);
-
-
-        // console.log('searchEmployee Emp_id:', searchEmployee[0].Emp_id, '#########');
-
-        // console.log('searchEmployee email:', searchEmployee[0].email, '###########');
-
-        // console.log('searchEmployee email:', searchEmployee[0].phoneNumber, '############');
-
         const token = jwt.sign(
           {
             empId: searchEmployee[0].Emp_id,
