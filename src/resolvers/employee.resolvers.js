@@ -1,6 +1,7 @@
 import queryAsync from "../utils/queryAsync.js";
 import { v4 as uuidv4 } from "uuid";
 import { sendMailer } from "../utils/nodemail.js";
+import jwt from 'jsonwebtoken';
 
 const employeeResolver = {
   Mutation: {
@@ -124,8 +125,6 @@ const employeeResolver = {
           emergencyContact_phoneNumber,
         ]);
 
-        // console.log("insertedEmployee Data");
-        // console.log(insertedEmployee);
 
         return {
           code: 201,
@@ -143,15 +142,43 @@ const employeeResolver = {
       }
     },
     loginEmployee: async (_, args, context) => {
-      const { emp_Id, email, phoneNumber } = args.input;
+
+      const {  email, phoneNumber } = args.input;
 
       try {
-        const searchQuery = `SELECT * FROM employee WHERE Emp_id = ?`;
+        const searchQuery = `SELECT * FROM employee WHERE email = ?`;
 
-        const searchEmployee = await queryAsync(searchQuery, [emp_Id]);
+        const searchEmployee = await queryAsync(searchQuery, [email]);
 
-        console.log("searchEmployee");
-        console.log(searchEmployee);
+        // console.log("searchEmployee");
+        // console.log(searchEmployee);
+
+
+        // console.log('searchEmployee Emp_id:', searchEmployee[0].Emp_id, '#########');
+
+        // console.log('searchEmployee email:', searchEmployee[0].email, '###########');
+
+        // console.log('searchEmployee email:', searchEmployee[0].phoneNumber, '############');
+
+        const token = jwt.sign(
+          {
+            empId: searchEmployee[0].Emp_id,
+            empEmail: searchEmployee[0].email,
+            empPhoneNumber: searchEmployee[0].phoneNumber
+          },
+          process.env.JWT_TOKEN_SECRET,
+          { expiresIn: "10m" }
+        );
+        const refreshToken = jwt.sign(
+          {
+            empId: searchEmployee[0].Emp_id,
+            empEmail: searchEmployee[0].email,
+            empPhoneNumber: searchEmployee[0].phoneNumber
+          },
+          process.env.REFRESH_TOKEN_SECRET,
+          { expiresIn: "7d" }
+        );
+      
 
         if (!searchEmployee.length) {
           // Assuming searchEmployee is an array
@@ -159,6 +186,8 @@ const employeeResolver = {
             code: 400,
             success: false,
             message: "Employee Not Found",
+            token: null,
+            refreshToken: null
           };
         }
 
@@ -167,6 +196,8 @@ const employeeResolver = {
           code: 200,
           success: true,
           message: "Employee found",
+          token: token,
+          refreshToken: refreshToken
         };
       } catch (err) {
         console.error("Error searching employee:", err);
@@ -174,20 +205,24 @@ const employeeResolver = {
           code: 500,
           success: false,
           message: "Internal Server Error",
+          token: null,
+          refreshToken: null
         };
       }
     },
     updateEmployeeDetails: async (_, args, context) => {
-      const { emp_id, managerID } = args.input;
 
+      const { emp  }  = context;
+      const empId = emp.empId;
+
+
+      const { managerID } = args.input;
+
+       
+    
       try {
-        console.log("inside the updateEmployeeDetails");
-        console.log("emp_id");
-        console.log(emp_id);
-        console.log("manager");
-        console.log(managerID);
 
-        if (!emp_id) {
+        if (!emp.empId) {
           return {
             code: 400,
             success: false,
@@ -198,9 +233,12 @@ const employeeResolver = {
         const updateQuery = `UPDATE employee SET  managerID = ?,  updatedAt = NOW() 
       WHERE Emp_id = ?`;
 
-        const updateValues = [managerID, emp_id];
+        const updateValues = [managerID, empId];
 
         const updateEmployee = await queryAsync(updateQuery, updateValues);
+
+       console.log("updateEmployee");
+        console.log(updateEmployee);
 
         if (updateEmployee.affectedRows === 0) {
           return {
@@ -224,11 +262,12 @@ const employeeResolver = {
       }
     },
     deleteEmployeeDetails: async (_, args, context) => {
-      const { emp_Id } = args;
+      const { emp  }  = context;
+      const empId = emp.empId;
 
       try {
         // Check if emp_Id is provided
-        if (!emp_Id) {
+        if (!empId) {
           return {
             code: 400,
             success: false,
@@ -238,7 +277,7 @@ const employeeResolver = {
 
         const deleteQuery = `DELETE FROM employee WHERE Emp_id = ?`;
 
-        const deleteEmployee = await queryAsync(deleteQuery, [emp_Id]);
+        const deleteEmployee = await queryAsync(deleteQuery, [empId]);
 
         if (deleteEmployee.affectedRows === 0) {
           return {
@@ -326,10 +365,17 @@ const employeeResolver = {
       }
     },
     employee: async (_, args, context) => {
-      try {
-        const { emp_Id } = args;
 
-        if (!emp_Id) {
+      const { emp  }  = context;
+      const empId = emp.empId;
+
+      try {
+
+
+        console.log("empId", empId)
+
+
+        if (!empId) {
           return {
             code: 400,
             success: false,
@@ -339,7 +385,7 @@ const employeeResolver = {
 
         const getByIdQuery = `SELECT * FROM employee WHERE Emp_id= ?`;
 
-        const getEmployee = await queryAsync(getByIdQuery, [emp_Id]);
+        const getEmployee = await queryAsync(getByIdQuery, [empId]);
 
         if (getEmployee.length === 0) {
           return {

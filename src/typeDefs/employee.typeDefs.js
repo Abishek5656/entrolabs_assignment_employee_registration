@@ -47,14 +47,12 @@ input CreateEmployeeInput {
 }
  
 input UpdateEmployeeDetailsInput {
-    emp_id: String!
     managerID: Int
 }
 
 input LoginEmployeeDetailsInput {
-    emp_Id: String!
-    email: String!
-    phoneNumber: String!
+    email: String
+    phoneNumber: String
 }
 
 input EmployeeInput {
@@ -93,6 +91,7 @@ type CreateEmployeeResponse {
   code: Int!
   success: Boolean!
   message: String!
+  token: String
 }
 
 type GetALLEmployeesResponse {
@@ -119,6 +118,8 @@ type LoginEmployeeResponse {
   code: Int
   success: Boolean
   message: String
+  token: String
+  refreshToken: String
 }
 
 type DeleteEmployeeDetailsResponse {
@@ -128,15 +129,15 @@ type DeleteEmployeeDetailsResponse {
 }
 
 type Query {
-    employees(currentPage: Int!): GetALLEmployeesResponse!
-    employee(emp_Id: String!): GetEmployeeByIdResponse!
+    employees(currentPage: Int!): GetALLEmployeesResponse
+    employee: GetEmployeeByIdResponse
 }
 
 type Mutation {
-    createEmployee(input: CreateEmployeeInput): CreateEmployeeResponse!
-    loginEmployee(input: LoginEmployeeDetailsInput): LoginEmployeeResponse!
-   updateEmployeeDetails(input: UpdateEmployeeDetailsInput!): UpdateEmployeeDetailsResponse!
-    deleteEmployeeDetails(emp_Id: String!): DeleteEmployeeDetailsResponse!
+    createEmployee(input: CreateEmployeeInput): CreateEmployeeResponse
+    loginEmployee(input: LoginEmployeeDetailsInput): LoginEmployeeResponse
+   updateEmployeeDetails(input: UpdateEmployeeDetailsInput): UpdateEmployeeDetailsResponse!
+    deleteEmployeeDetails: DeleteEmployeeDetailsResponse
 }
 `;
 

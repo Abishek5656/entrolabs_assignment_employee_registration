@@ -39,6 +39,7 @@ const connectDB = async () => {
                     emergencyContactName VARCHAR(100) NOT NULL,
                     emergencyContactRelationship VARCHAR(50) NOT NULL,
                     emergencyContactPhoneNumber VARCHAR(15) NOT NULL,
+            
                     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 );
