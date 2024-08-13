@@ -457,9 +457,20 @@ if (Array.isArray(emergencyContact) && emergencyContact.length > 0) {
               const getAllRecordsQuery = `SELECT * FROM Employee`;
               const allRecords = await queryAsync(getAllRecordsQuery);
               // Fetch emergency contacts if necessary
+
+
               const employees = await Promise.all(allRecords.map(async (emp) => {
-                  const emergencyContactsQuery = `SELECT * FROM EmergencyContact WHERE employeeId = ?`;
+
+
+                console.log("employee  @@!!! -->",emp);
+                console.log("employeeID@@## -->",emp.id);
+                
+                
+                  const emergencyContactsQuery = `SELECT * FROM EmergencyContact WHERE id = ?`;
                   const emergencyContacts = await queryAsync(emergencyContactsQuery, [emp.id]);
+
+                console.log("emergencyContacts@@##!!");
+                
                   return {
                       ...emp,
                       emergencyContact: emergencyContacts.map(ec => ({

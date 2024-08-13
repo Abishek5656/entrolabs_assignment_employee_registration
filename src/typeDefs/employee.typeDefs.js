@@ -19,7 +19,7 @@ type Employee1 {
     phoneNumber: String
     skills: [String]
     address: Address 
- emergencyContact: [EmergencyContact]
+  emergencyContact: [EmergencyContact]
     createdAt: String
     updatedAt: String
 }
@@ -120,7 +120,7 @@ type GetALLEmployeesResponse {
     pages: Int
     currentPage: Int
     totalRecords: Int
-  employees: [Employee1]
+   employees: [Employee1]
 }
 
 type GetEmployeeByIdResponse {
