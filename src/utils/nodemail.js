@@ -12,7 +12,7 @@ import nodemailer from 'nodemailer';
 //   },
 // });
 
-export const sendMailer = (usermail, username) => {
+export const sendMailer = async(usermail, username) => {
   console.log("usermail:", usermail, '#########');
   console.log('usermail',typeof(usermail));
   console.log("username:", username, '######');

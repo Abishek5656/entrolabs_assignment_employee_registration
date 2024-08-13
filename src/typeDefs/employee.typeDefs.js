@@ -11,6 +11,19 @@ type Employee {
     updatedAt: String
 }
 
+type Employee1 {
+    id: ID
+    firstName: String
+    lastName: String
+    email: String
+    phoneNumber: String
+    skills: [String]
+    address: Address 
+ emergencyContact: [EmergencyContact]
+    createdAt: String
+    updatedAt: String
+}
+
 type EmployeeJobDetails {
     managerId: ID
     emp_Id: String
@@ -42,13 +55,21 @@ input CreateEmployeeInput {
     phoneNumber: String
     skills: [String]
     address: AddressInput
-    emergencyContact: EmergencyContactInput
+    emergencyContact: [EmergencyContactInput]
     employeeJobDetails: EmployeeJobDetailsInput
 }
  
 input UpdateEmployeeDetailsInput {
-    managerID: Int
+    firstName: String
+    lastName: String
+    email: String
+    phoneNumber: String
+    skills: [String]
+    address: AddressInput
+    emergencyContact: [EmergencyContactInput]
+    employeeJobDetails: EmployeeJobDetailsInput
 }
+
 
 input LoginEmployeeDetailsInput {
     email: String
@@ -99,7 +120,7 @@ type GetALLEmployeesResponse {
     pages: Int
     currentPage: Int
     totalRecords: Int
- employees: [Employee]
+  employees: [Employee1]
 }
 
 type GetEmployeeByIdResponse {
