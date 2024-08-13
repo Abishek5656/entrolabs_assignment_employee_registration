@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import employeeDetails from "../resolvers/employee.js";
 import emergencyContactDetails from "../resolvers/emergencyContact.js";
 import dbConnection from "../db/index.js";
+import { NUMBER, where } from "sequelize";
 
 const employeeResolver = {
   Mutation: {
@@ -37,6 +38,7 @@ const employeeResolver = {
       }
   
       const empID = uuidv4().replace(/-/g, "").substr(0, 16);
+
       const employeeDetail = {
         Emp_id: empID,
         firstName,
@@ -103,140 +105,112 @@ const employeeResolver = {
         token: null
       };
     }
+  },
+  updateEmployeeDetails: async(_,args, context) => {
+
+    const {
+      Emp_id,
+      firstName, lastName, email,
+      skills, address, phoneNumber, emergencyContact,
+      employeeJobDetails
+    } = args.input;
+
+    try {
+      
+      const findEmployee = await employeeDetails.findOne({
+        where: {
+          Emp_id
+        }
+      })
+  
+      if(!findEmployee) {
+        return {
+          code: 400,
+          success: false,
+          message: "EMployee not found",
+          
+        }
+      }
+
+      const employeeId = findEmployee.dataValues.id;
+  
+      let updateEmployee = {};
+
+      const { managerId,employeeType,salary,dateOfJoining,department,position} = employeeJobDetails;
+  
+      // Update fields if they exist in the input
+      if (firstName) updateEmployee.firstName = firstName;
+      if (lastName) updateEmployee.lastName = lastName;
+      if (email) updateEmployee.email = email;
+      if (phoneNumber) updateEmployee.phoneNumber = phoneNumber;
+  
+      if (skills) updateEmployee.skills = skills;
+      if (address) updateEmployee.address = address;
+   
+      if (managerId) updateEmployee.managerId = parseInt(managerId);
+      if (employeeType) updateEmployee.employeeType = employeeType;
+    if (salary) updateEmployee.salary = salary;
+
+      await employeeDetails.update(updateEmployee, {
+        where: { Emp_id }
+      });
+  for(const contactDetails of emergencyContact) {
+    const { id,name, relationship, phoneNumber} = contactDetails;
+
+    let updateEmergencyDetails = {};
+    const employeeContact = await emergencyContactDetails.findOne({
+     where: {
+      id:id,
+      employeeId: employeeId
+     } 
+    })
+
+    if(!employeeContact) {
+      return {
+        code: 400,
+        success: false,
+        message: "EmergencyContact not found",
+        
+      }
+    }
+    if(name) updateEmergencyDetails.name = name;
+
+    if(relationship) updateEmergencyDetails.relationship = relationship;
+
+    if(phoneNumber) updateEmergencyDetails.phoneNumber = phoneNumber;
+
+    await emergencyContactDetails.update(updateEmergencyDetails, {
+      where: { id: id, employeeId: employeeId }
+    });
+    
   }
+      return {
+        code: 200,
+        success: true,
+        message: "Employee details updated successfully"
+      };
+
+
+    } catch (e) {
+
+        if (e && e.original && e.original.sqlMessage) {
+        return {
+          code: 400,
+          success: false,
+          message: e.original.sqlMessage,
+          
+        };
+      }
   
+      return {
+        code: 400,
+        success: false,
+        message: e.message,
+      };
+    }
+   
+  }
 
-// createEmployee: async (_, args, context) => {
-//   const {
-//       firstName,
-//       lastName,
-//       email,
-//       phoneNumber,
-//       skills,
-//       address,
-//       emergencyContact,
-//       employeeJobDetails,
-//   } = args.input;
-
-//   try {
-
-//       if (
-//           !firstName ||
-//           !lastName ||
-//           !email ||
-//           !phoneNumber ||
-//           !skills ||
-//           !address?.street ||
-//           !address?.city ||
-//           !address?.state ||
-//           !address?.postalCode ||
-//           !address?.country ||
-//           !emergencyContact?.length ||
-//           !employeeJobDetails?.employeeType ||
-//           !employeeJobDetails?.salary ||
-//           !employeeJobDetails?.dateOfJoining ||
-//           !employeeJobDetails?.department ||
-//           !employeeJobDetails?.position
-//       ) 
-//       {
-//           return {
-//               code: 400,
-//               success: false,
-//               message: "All fields are required for employee creation",
-//               employee: null,
-//               employeeJobDetails: null,
-//               address: null,
-//               emergencyContact: null,
-//           };
-//       }
-
-//       const empID = uuidv4().replace(/-/g, "").substr(0, 16);
-
-//       // Insert into Employee table
-//       const insertEmployeeQuery = `
-//           INSERT INTO Employee (
-//               Emp_id,
-//               firstName,
-//               lastName,
-//               email,
-//               position,
-//               department,
-//               dateOfJoining,
-//               phoneNumber,
-//               street,
-//               city,
-//               state,
-//               postalCode,
-//               country,
-//               salary,
-//               employmentType,
-//               skills,
-//               createdAt,
-//               updatedAt
-//           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-//       `;
-
-//       const employeeResult= await queryAsync(insertEmployeeQuery, [
-//           empID,
-//           firstName,
-//           lastName,
-//           email,
-//           employeeJobDetails.position,
-//           employeeJobDetails.department,
-//           employeeJobDetails.dateOfJoining,
-//           phoneNumber,
-//           address.street,
-//           address.city,
-//           address.state,
-//           address.postalCode,
-//           address.country,
-//           employeeJobDetails.salary,
-//           employeeJobDetails.employeeType,
-//           JSON.stringify(skills)
-//       ]);
-
-//       const employeeId = employeeResult.insertId;
-
-//       const insertEmergencyContactQuery = `
-//     INSERT INTO EmergencyContact (
-//         employeeId,
-//         name,
-//         relationship,
-//         phoneNumber
-//     ) VALUES (?, ?, ?, ?)
-// `;
-
-// if (Array.isArray(emergencyContact) && emergencyContact.length > 0) {
-
-//   console.log("emergencyContact inside the if",emergencyContact);
-  
-//     for (const contact of emergencyContact) {
-//         await queryAsync(insertEmergencyContactQuery, [
-//             employeeId, // Use the employeeId from the insert result
-//             contact.emergencyContactName,
-//             contact.emergencyContactRelation,
-//             contact.emergencyContactNumber,
-//         ]);
-//     }
-// } else {
-//     console.error("Emergency contacts are not in the expected format or are empty.");
-// }
-//       return {
-//           code: 201,
-//           success: true,
-//           message: "Employee created successfully",
-//       };
-
-//   } catch (err) {
-//       console.error("Error creating employee:", err);
-
-//       return {
-//           code: err.extensions?.response?.status || 500,
-//           success: false,
-//           message: err.message || "Internal Server Error",
-//       };
-//   }
-// },
 //     loginEmployee: async (_, args, context) => {
 
 //       const {  email, phoneNumber } = args.input;
@@ -303,7 +277,11 @@ const employeeResolver = {
 //         };
 //       }
 //     },
+
+
 //     updateEmployeeDetails: async (_, args, context) => {
+
+
 //       const { emp } = context;
 //       const empId = emp.empId;
   

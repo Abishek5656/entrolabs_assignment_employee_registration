@@ -1,4 +1,5 @@
 const employeeTypeDef = `#graphql 
+
 type Employee {
     id: ID
     Emp_id: String
@@ -10,8 +11,6 @@ type Employee {
     employeeDetails:EmployeeJobDetails
     address: Address
     emergencyContact: [EmergencyContact]
-    createdAt: String
-    updatedAt: String
 }
 
 type EmployeeJobDetails {
@@ -32,6 +31,7 @@ type Address {
 }
 
 type EmergencyContact {
+    id:ID
     name: String             
     relationship: String      
     phoneNumber: String 
@@ -44,6 +44,12 @@ type CreateEmployeeResponse {
 }
 
 
+type UpdateEmployeeDetailsResponse {
+ code: Int
+  success: Boolean
+  message: String 
+}
+
 input AddressInput {
     street: String
     city: String
@@ -51,7 +57,6 @@ input AddressInput {
     postalCode: String
     country: String
 }
-
 
 input CreateEmployeeInput {                         
     firstName: String
@@ -65,6 +70,7 @@ input CreateEmployeeInput {
 }
 
 input EmergencyContactInput {
+    id:ID
     name: String
     relationship: String
     phoneNumber: String
@@ -79,8 +85,22 @@ input EmployeeJobDetailsInput {
     position: String
 }
 
+input UpdateEmployeeDetailsInput {
+    id:ID
+    Emp_id: String
+    firstName: String
+    lastName: String
+    email: String
+    phoneNumber: String
+    skills: [String]
+    address: AddressInput
+    emergencyContact: [EmergencyContactInput]
+    employeeJobDetails:EmployeeJobDetailsInput
+}
+
 type Mutation {
     createEmployee(input: CreateEmployeeInput): CreateEmployeeResponse
+    updateEmployeeDetails(input: UpdateEmployeeDetailsInput): UpdateEmployeeDetailsResponse
 }
 
 type Query {

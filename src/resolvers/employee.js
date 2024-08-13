@@ -55,12 +55,6 @@ const employeeDetails = dbConnection.define(
         skills: {
             type: Sequelize.JSON, // Use Sequelize.JSON to store an array of skills
         },
-        created_at: {
-            type: Sequelize.BIGINT
-        },
-        del_flag: {
-            type: Sequelize.TINYINT
-        }
     },
     {
         freezeTableName: true,
