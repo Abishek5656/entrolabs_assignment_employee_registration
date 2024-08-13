@@ -50,6 +50,12 @@ type UpdateEmployeeDetailsResponse {
   message: String 
 }
 
+type DeleteEmployeeResponse {
+    code: Int
+  success: Boolean
+  message: String
+}
+
 input AddressInput {
     street: String
     city: String
@@ -98,9 +104,11 @@ input UpdateEmployeeDetailsInput {
     employeeJobDetails:EmployeeJobDetailsInput
 }
 
+
 type Mutation {
     createEmployee(input: CreateEmployeeInput): CreateEmployeeResponse
     updateEmployeeDetails(input: UpdateEmployeeDetailsInput): UpdateEmployeeDetailsResponse
+    deleteEmployee(emp_Id: String):DeleteEmployeeResponse
 }
 
 type Query {

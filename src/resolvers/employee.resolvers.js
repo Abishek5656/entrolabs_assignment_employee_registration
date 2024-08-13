@@ -209,6 +209,60 @@ const employeeResolver = {
       };
     }
    
+  },
+  deleteEmployee: async(_, args, context) => {
+    const { emp_Id } = args;
+
+    console.log("employeeId", emp_Id)
+
+
+    try {
+      
+      const findEmployee = await employeeDetails.findOne({
+        where: {
+          Emp_id: emp_Id
+        }
+      });
+  
+      if(!findEmployee) {
+        return { 
+          code: 400,
+            success: false,
+            message: "EMployee not found",
+        }
+      }
+  
+      await employeeDetails.destroy({
+        where: {
+          Emp_id: emp_Id
+        }
+      });
+  
+      return {
+        code: 200,
+        success: true,
+        message: "Employee deleted successfully",
+      };
+  
+    } catch (e) {
+      if (e && e.original && e.original.sqlMessage) {
+        return {
+          code: 400,
+          success: false,
+          message: e.original.sqlMessage,
+          
+        };
+      }
+  
+      return {
+        code: 400,
+        success: false,
+        message: e.message,
+      };
+    }
+
+
+  
   }
 
 //     loginEmployee: async (_, args, context) => {
