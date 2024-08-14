@@ -43,6 +43,13 @@ type CreateEmployeeResponse {
   message: String
 }
 
+type getAllEmployeeDetails {
+    code: Int
+  success: Boolean
+  message: String
+  employee:[Employee]
+}
+
 
 type UpdateEmployeeDetailsResponse {
  code: Int
@@ -112,7 +119,7 @@ type Mutation {
 }
 
 type Query {
-    employee: String
+    employees(page: Int, perPage:Int ):[Employee]
 }
 `;
 

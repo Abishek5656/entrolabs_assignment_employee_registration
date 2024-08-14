@@ -332,51 +332,248 @@ const employeeResolver = {
 //       }
 //     },
 
-//     deleteEmployeeDetails: async (_, args, context) => {
-//       const { emp  }  = context;
-//       const empId = emp.empId;
-
-//       try {
-//         // Check if emp_Id is provided
-//         if (!empId) {
-//           return {
-//             code: 400,
-//             success: false,
-//             message: "Employee ID is required",
-//           };
-//         }
-
-//         const deleteQuery = `DELETE FROM employee WHERE Emp_id = ?`;
-
-//         const deleteEmployee = await queryAsync(deleteQuery, [empId]);
-
-//         if (deleteEmployee.affectedRows === 0) {
-//           return {
-//             code: 404,
-//             success: false,
-//             message: "Employee not found",
-//           };
-//         }
-
-//         return {
-//           code: 200,
-//           success: true,
-//           message: "Employee deleted successfully",
-//         };
-//       } catch (err) {
-//         console.error("Error deleting employee:", err);
-
-//         return {
-//           code: err.extensions?.response?.status || 500,
-//           success: false,
-//           message: err.message || "Internal Server Error",
-//         };
-//       }
-//     },
-
-
   },
  Query: {
+
+  employees: async (_, args, context) => {
+    const { page, perPage } = args;
+  
+    try {
+      // Get the total count of employees
+      const totalCount = await employeeDetails.count();
+      console.log("totalCount #$$-->", totalCount);
+  
+      // Set default values for pagination
+      let pageNumber = page || 1;
+      let pagePerLimit = perPage || 10;
+  
+      // Ensure the page number is at least 1
+      if (pageNumber <= 0) {
+        pageNumber = 1;
+      }
+  
+      // Calculate the maximum page number based on total count
+      const maxPage = Math.ceil(totalCount / pagePerLimit);
+  
+      // If the requested page number exceeds the maximum, adjust it
+      if (pageNumber > maxPage) {
+        pageNumber = maxPage;
+      }
+  
+      // Calculate the offset for the query
+      const skipPage = (pageNumber - 1) * pagePerLimit;
+  
+      // Retrieve the employee data with pagination
+      const getAllData = await employeeDetails.findAll({
+        offset: skipPage,
+        limit: pagePerLimit,
+      });
+  
+      console.log("getAllData !@@@-->", getAllData);
+  
+      // Fetch additional details for each employee
+      if (getAllData && getAllData.length > 0) {
+        const getAllEmployeeDetails = await Promise.all(
+          getAllData.map(async (data) => {
+            const { id, Emp_id } = data;
+  
+            // Fetch emergency contact details
+            const getEmergencyContact = await emergencyContactDetails.findAll({
+              where: { employeeId: Emp_id },
+            });
+  
+            console.log("getEmergencyContact ###$$@@@@==>", getEmergencyContact);
+            console.log("data", data);
+  
+            return {
+              ...data.dataValues,
+              emergencyContact: getEmergencyContact,
+            };
+          })
+        );
+  
+        return {
+          code: 200,
+          success: true,
+          message: "All employee data retrieved successfully",
+          employee: getAllEmployeeDetails,
+        };
+      } else {
+        return {
+          code: 200,
+          success: true,
+          message: "No employee data found",
+          employee: [],
+        };
+      }
+    } catch (e) {
+      console.error("Error:", e);
+      if (e && e.original && e.original.sqlMessage) {
+        return {
+          code: 400,
+          success: false,
+          message: e.original.sqlMessage,
+          employee: null,
+        };
+      }
+  
+      return {
+        code: 400,
+        success: false,
+        message: e.message,
+        employee: null,
+      };
+    }
+  }
+  
+
+  // employees: async(_, args, context) => {
+
+
+    // const { page, perPage } = args;
+
+    // try {
+      
+
+    //   const totalCount = await employeeDetails.count();
+    //   console.log("totalCount #$$-->", totalCount);
+    
+    //   let pageNumber = page || 1;
+    //   let pagePerLimit = perPage || 10;
+
+    //   if (page <= 0) {
+    //     pageNumber = 1;
+    //   }
+
+    //   if (totalCount > 0) {
+    //     const maxCount = totalCount - pageNumber * pagePerLimit;
+
+    //     if (maxCount < 0) {
+    //       pageNumber = Math.ceil(totalCount / pagePerLimit);
+    //     }
+    //   }
+
+    //   const skipPage = (pageNumber - 1) * pagePerLimit;
+
+
+    //   const getAllData = await employeeDetails.findAll({
+    //     offset: skipPage || 0,
+    //     limit: pagePerLimit || 10,
+    //   });
+
+    //   console.log("getAllData !@@@-->", getAllData)
+
+
+    //   if(getAllData) {
+
+    //     const getAllEmployeeDetails = getAllData.map(async (data) => { 
+
+    //       const { id, Emp_id } = data;
+
+    //       const getEmergencyContact = await emergencyContactDetails.findOne({
+    //         id:id,
+    //         employeeId: Emp_id
+    //       })
+
+    //       console.log("getEmergencyContact ###$$@@@@==>", getEmergencyContact)
+    //       console.log("data", data);
+    //       return {
+    //         ...data.dataValues,
+
+    //       }
+    //     })
+    //   }
+    
+    // } catch (e) {
+    //   if (e && e.original && e.original.sqlMessage) {
+    //     return {
+    //       code: 400,
+    //       success: false,
+    //       message: e.original.sqlMessage,
+          
+    //     };
+    //   }
+  
+    //   return {
+    //     code: 400,
+    //     success: false,
+    //     message: e.message,
+    //   };
+  //   const { page, perPage } = args;
+
+  //   try {
+  //     // Get the total count of employees
+  //     const totalCount = await employeeDetails.count();
+  //     console.log("totalCount #$$-->", totalCount);
+  
+  //     // Set default values for pagination
+  //     let pageNumber = page || 1;
+  //     let pagePerLimit = perPage || 10;
+  
+  //     // Ensure the page number is at least 1
+  //     if (pageNumber <= 0) {
+  //       pageNumber = 1;
+  //     }
+  
+  //     // Calculate the maximum page number based on total count
+  //     const maxPage = Math.ceil(totalCount / pagePerLimit);
+  
+  //     // If the requested page number exceeds the maximum, adjust it
+  //     if (pageNumber > maxPage) {
+  //       pageNumber = maxPage;
+  //     }
+  
+  //     // Calculate the offset for the query
+  //     const skipPage = (pageNumber - 1) * pagePerLimit;
+  
+  //     // Retrieve the employee data with pagination
+  //     const getAllData = await employeeDetails.findAll({
+  //       offset: skipPage,
+  //       limit: pagePerLimit,
+  //     });
+  
+  //     console.log("getAllData !@@@-->", getAllData);
+  
+  //     // Fetch additional details for each employee
+  //     if (getAllData && getAllData.length > 0) {
+  //       const getAllEmployeeDetails = await Promise.all(
+  //         getAllData.map(async (data) => {
+  //           const { id, Emp_id } = data;
+  
+  //           // Fetch emergency contact details
+  //           const getEmergencyContact = await emergencyContactDetails.findAll({
+  //             where: { employeeId: Emp_id },
+  //           });
+  
+  //           console.log("getEmergencyContact ###$$@@@@==>", getEmergencyContact);
+  //           console.log("data", data);
+  
+  //           return {
+  //             ...data.dataValues,
+  //             emergencyContact: getEmergencyContact,
+  //           };
+  //         })
+  //       );
+  
+  //       return {
+  //         code: 200,
+  //         success: true,
+  //         message: "all employee data",
+  //         employee:  getAllEmployeeDetails
+  //       }
+       
+  //   } catch {
+  //     if (e && e.original && e.original.sqlMessage) {
+  //       return {
+  //         code: 400,
+  //         success: false,
+  //         message: e.original.sqlMessage,
+  //         employee: null
+  //       };
+  //     }
+  //   }
+  // }
+  
   //   // employees: async (_, args, context) => {
   //   //   // const { currentPage } = args;
   //   //   // try {
