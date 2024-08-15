@@ -32,7 +32,7 @@ const server = new ApolloServer({
   app.use(
     '/graphql',
     jwtMiddleware,  
-    cors({ origin: ['https://studio.apollographql.com', '*'] }), 
+    // cors({ origin: ['https://studio.apollographql.com', '*'] }), 
     express.json(),
     expressMiddleware(server, {
       context: ({ req }) => {

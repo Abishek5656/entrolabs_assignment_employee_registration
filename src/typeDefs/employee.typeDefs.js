@@ -32,6 +32,7 @@ type Address {
 
 type EmergencyContact {
     id:ID
+    employeeId:ID
     name: String             
     relationship: String      
     phoneNumber: String 
@@ -41,13 +42,6 @@ type CreateEmployeeResponse {
   code: Int
   success: Boolean
   message: String
-}
-
-type getAllEmployeeDetails {
-    code: Int
-  success: Boolean
-  message: String
-  employee:[Employee]
 }
 
 
@@ -61,6 +55,19 @@ type DeleteEmployeeResponse {
     code: Int
   success: Boolean
   message: String
+}
+
+type getAllEmployeeDetailsResponse {
+    id: ID
+    Emp_id: String
+    firstName: String
+    lastName: String
+    email: String
+    phoneNumber: String
+    skills: [String]
+    address: Address
+    emergencyContact: [EmergencyContact]
+    employeeJobDetails: EmployeeJobDetails
 }
 
 input AddressInput {
@@ -84,6 +91,7 @@ input CreateEmployeeInput {
 
 input EmergencyContactInput {
     id:ID
+    employeeId:ID
     name: String
     relationship: String
     phoneNumber: String
@@ -111,7 +119,6 @@ input UpdateEmployeeDetailsInput {
     employeeJobDetails:EmployeeJobDetailsInput
 }
 
-
 type Mutation {
     createEmployee(input: CreateEmployeeInput): CreateEmployeeResponse
     updateEmployeeDetails(input: UpdateEmployeeDetailsInput): UpdateEmployeeDetailsResponse
@@ -119,7 +126,7 @@ type Mutation {
 }
 
 type Query {
-    employees(page: Int, perPage:Int ):[Employee]
+    employees(page: Int, perPage:Int ): [getAllEmployeeDetailsResponse]
 }
 `;
 
